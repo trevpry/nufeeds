@@ -3,7 +3,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var crypto = require('crypto');
-var authTypes = ['github', 'twitter', 'facebook', 'google'];
+var authTypes = ['github', 'twitter', 'facebook', 'google', 'tumblr'];
 
 var UserSchema = new Schema({
   name: String,
@@ -14,11 +14,14 @@ var UserSchema = new Schema({
   },
   hashedPassword: String,
   provider: String,
+  following: {},
+  allPhotos: {},
   salt: String,
   facebook: {},
   twitter: {},
   google: {},
-  github: {}
+  github: {},
+  tumblr: {}
 });
 
 /**
@@ -41,7 +44,8 @@ UserSchema
   .get(function() {
     return {
       'name': this.name,
-      'role': this.role
+      'role': this.role,
+      'following': this.following
     };
   });
 
@@ -143,6 +147,10 @@ UserSchema.methods = {
     if (!password || !this.salt) return '';
     var salt = new Buffer(this.salt, 'base64');
     return crypto.pbkdf2Sync(password, salt, 10000, 64).toString('base64');
+  },
+
+  getBlog: function(blog){
+    return this.following.find({'name': 'twinktopia'});
   }
 };
 

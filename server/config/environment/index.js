@@ -57,6 +57,12 @@ var all = {
     clientID:     process.env.GOOGLE_ID || 'id',
     clientSecret: process.env.GOOGLE_SECRET || 'secret',
     callbackURL:  (process.env.DOMAIN || '') + '/auth/google/callback'
+  },
+
+  tumblr: {
+    clientID:     process.env.TUMBLR_ID || 'id',
+    clientSecret: process.env.TUMBLR_SECRET || 'secret',
+    callbackURL:  (process.env.DOMAIN || '') + '/auth/tumblr/callback'
   }
 };
 
