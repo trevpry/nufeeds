@@ -26,10 +26,10 @@
       </div>
     </div>
 
-    <div class="col-sm-2" ng-if="all == true">
+    <div class="col-sm-2" ng-if="all == true" in-view-container>
       <div ng-repeat="post in getCurrentUser().allPhotos.photos">
-
         <img src="{{post.photo.url}}">
+        <!--<img src="{{post.photo.url}}" in-view="lineInView($index, $inview, $inviewpart, $event)">-->
       </div>
     </div>
   </div>

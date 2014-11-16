@@ -4,7 +4,10 @@ var Tumblr = require('tumblr');
 var async = require('async');
 var request = require('request');
 var db = require('mongoose');
-var currUser;
+var eventsModule = require('events');
+var events = new eventsModule.EventEmitter();
+var ImageParser = require('../../components/parsers/ImageParser.js');
+var currUser = '';
 var currOauth;
 var currUserModel;
 
@@ -16,22 +19,19 @@ exports.add = function(user, tumblr_user, oauth, User){
       if (error) {
         throw new Error(error);
       }
-
         user.following = response['blogs'];
 
         user.save(function(err) {
             if (err) return err;
-            User.find({'following.name': 'twinktopia'}, {'following.$': 1}, {'_id': user.id}, function(err, user, following){
-            });
+
             getPosts(user, oauth, User);
-
         });
-
-
     });
 };
 
-function getPosts(user, oauth, User){
+
+
+var getPosts = function (user, oauth, User){
     var blogs = user.following;
     var lastUpdated;
     User.find({'_id': user.id}, function(err, response){
@@ -39,63 +39,95 @@ function getPosts(user, oauth, User){
     });
     var i = 0;
     var setter = {};
+    var parsed;
     var posts = [];
     var postsAll = [];
-    var filterExt = 'gif';
     var fileNames = [];
-    var lastSlash = 0;
+
+
 
     async.each(blogs, function(blog, callback){
         request({
             url: 'http://api.tumblr.com/v2/blog/' + blog.name + '.tumblr.com/posts?api_key=' + oauth.consumer_key,
             method: 'GET',
             json: true
-        }, function(err, res, body) {
+        }, function(err, res) {
+
             if (typeof res !== 'undefined'){
-                async.each(res.body.response.posts, function(post, callback){
+                var imageParser = new ImageParser(res, lastUpdated);
 
-                    if (Array.isArray(post.photos) && post.photos.length > 0 && post.timestamp > lastUpdated){
+                //parseImages(res, lastUpdated, events);
 
-                        async.each(post.photos, function(photo, callback){
-
-                            async.each(photo.alt_sizes, function(size, callback){
-                                var fileName = '';
-
-                                if(size.width == 500 && size.url.substring(size.url.length-3, size.url.length) !== filterExt){
-
-                                    lastSlash = size.url.lastIndexOf('/');
-                                    fileName = size.url.substring(lastSlash+1, size.url.length);
-                                    if (fileNames.length > 0 && fileNames.indexOf(fileName) === -1){
-                                        posts.push(size);
-                                        postsAll.push({timestamp: post.timestamp, photo: size});
-                                    }
-                                    fileNames.push(fileName);
-                                    //postsAll['data']
-                                }
-                                callback();
-                            }, function(err){});
-                            callback();
-                        }, function(err){});
-                    }
-                    callback();
-                }, function(err){
-
+                imageParser.on('imagesParsed', function(parsed){
+                    postsAll.push(parsed);
+                    posts.push(parsed.photo);
+                    //console.log(parsed);
+                    //callback(null, parsed)
                 });
 
-                setter['following.$.photos'] = posts;
-                posts = [];
-                User.update({'following.name': blog.name},
-                    {'$set': setter},
-                    function(err, result){
-                        User.find({'_id': user.id}, function(err, response){
-
+                imageParser.on('imageParseComplete', function(fileNames){
+                    fileNames.push(fileNames);
+                    //console.log(fileNames);
+                    //console.log(posts);
+                    setter['following.$.photos'] = posts;
+                    posts = [];
+                    User.update({'following.name': blog.name},
+                        {'$set': setter},
+                        function(err, result){
                         });
-                    });
+                });
+
+                imageParser.parseImages();
+
+                //async.waterfall([
+                //    function(callback){
+                //        parseImages(res, lastUpdated);
+                //
+                //        events.on('imagesParsed', function(parsed){
+                //            console.log(parsed);
+                //            callback(null, parsed)
+                //        });
+                //
+                //    },
+                //    function(parsed, callback){
+                //        console.log(parsed);
+                //        postsAll.push(parsed.posts);
+                //        fileNames.push(parsed.filenames);
+                //        callback(null, parsed);
+                //    },
+                //    function(parsed, callback){
+                //        setter['following.$.photos'] = parsed.posts;
+                //        parsed = [];
+                //        User.update({'following.name': blog.name},
+                //            {'$set': setter},
+                //            function(err, result){
+                //                User.find({'_id': user.id}, function(err, response){
+                //
+                //                });
+                //            });
+                //        callback(null, 'done')
+                //    }
+                //], function (err, result){
+                //    console.log(postsAll);
+                //});
+
+                //parseImages(res, lastUpdated, function(err, parsed){
+                //    console.log('test');
+                //    postsAll.push(parsed.posts);
+                //    fileNames.push(parsed.filenames);
+                //
+                //
+                //    setter['following.$.photos'] = parsed.posts;
+                //    parsed = [];
+                //    User.update({'following.name': blog.name},
+                //        {'$set': setter},
+                //        function(err, result){
+                //            User.find({'_id': user.id}, function(err, response){
+                //
+                //            });
+                //        });
+                //});
             }
-
-
-
-
 
             callback();
         });
@@ -105,7 +137,7 @@ function getPosts(user, oauth, User){
         if (err) {
             console.log('error');
         } else {
-            //console.log(fileNames);
+            console.log(postsAll);
             async.sortBy(postsAll, function(x, callback){
                 callback(err, x.timestamp*-1);
             }, function(err, results){
@@ -117,7 +149,7 @@ function getPosts(user, oauth, User){
                     {'$push': {'allPhotos.photos': {$each: results}}},
                     function(err, result){
                         User.find({'_id': user.id}, function(err, response){
-                            console.log(response);
+                            //console.log(response);
                         });
                     });
             });
@@ -126,9 +158,11 @@ function getPosts(user, oauth, User){
         }
     });
 
-}
+};
 
-setInterval(function(){
+exports.getPosts = getPosts;
 
-    getPosts(currUser, currOauth, currUserModel);
-}, 30000);
+//setInterval(function(){
+//
+//    getPosts(currUser, currOauth, currUserModel);
+//}, 30000);

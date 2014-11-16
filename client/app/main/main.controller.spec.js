@@ -22,8 +22,30 @@ describe('Controller: MainCtrl', function () {
     });
   }));
 
-  it('should attach a list of things to the scope', function () {
-    $httpBackend.flush();
-    expect(scope.awesomeThings.length).toBe(4);
+  //it('should attach current user to the scope', function () {
+  //  //$httpBackend.flush();
+  //  expect(scope.getCurrentUser().role).toBe('user');
+  //});
+
+  it('should set "all" to false on init', function(){
+    expect(scope.all).toBe(true);
+  });
+
+  it('should set "all" to false when showBlog called', function() {
+    scope.showBlog();
+
+    expect(scope.all).toBe(false);
+  });
+
+  it('should set "all" to true when allBlogs called', function() {
+    scope.allBlogs();
+
+    expect(scope.all).toBe(true);
+  });
+
+  it('should set currentBlog to parameter value when showBlog called', function() {
+    scope.showBlog('test');
+
+    expect(scope.currentBlog).toBe('test');
   });
 });

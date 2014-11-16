@@ -9,9 +9,11 @@ angular.module('nufeedsApp')
         $scope.currentBlog = '';
         $scope.all = true;
 
+
+
       //console.log($scope.getCurrentUser());
 
-        console.log($scope.getCurrentUser().following);
+        console.log($scope.getCurrentUser().role);
 
       $scope.showBlog = function(blog){
           $scope.all = false;
@@ -23,7 +25,7 @@ angular.module('nufeedsApp')
 
         $scope.allBlogs = function(){
             $scope.all = true;
-            console.log($scope.getCurrentUser().following);
+            //console.log($scope.getCurrentUser().following);
         };
 
       //$http.jsonp('http://api.tumblr.com/v2/user/following')
@@ -35,6 +37,16 @@ angular.module('nufeedsApp')
       $scope.$on('$destroy', function () {
         socket.unsyncUpdates('thing');
       });
+
+        //$scope.lineInView = function(index, inview, inviewpart, event){
+        //  var inViewReport = inview ? '<strong>enters</strong>strong>' : '<strong>exit</strong>';
+        //    if (typeof(inviewpart) != 'undefined'){
+        //        inViewReport = '<strong>' + inviewpart + '</strong> part ' + inViewReport;
+        //    }
+        //    //event.inViewTarget.addClass('in-view');
+        //    console.log(inview);
+        //    return inview;
+        //};
 
       //function getPhotos(blog){
       //  var posts = [];
