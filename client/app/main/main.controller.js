@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('nufeedsApp')
-  .controller('MainCtrl', function ($scope, $http, socket, Auth) {
+  .controller('MainCtrl', function ($scope, $http, socket, Auth, $timeout) {
       $scope.blogs = [];
       $scope.photos = [];
       $scope.getCurrentUser = Auth.getCurrentUser;
@@ -27,6 +27,11 @@ angular.module('nufeedsApp')
             $scope.all = true;
             //console.log($scope.getCurrentUser().following);
         };
+
+        $timeout(function(){
+            $('.imagesAll').css('border: 2px solid green');
+        });
+
 
       //$http.jsonp('http://api.tumblr.com/v2/user/following')
       //    .success(function(blogs) {

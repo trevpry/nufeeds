@@ -22,8 +22,21 @@ li {
     background: #4393B9;
 }
 
-.in-view {
-    border: 2px solid red;
+.in-view img{
+    border: 1px solid black;
+}
+
+.blog-title {
+    cursor: pointer;
+    &:hover {
+        background: lightgrey;
+    }
+}
+
+.container {
+    &:focus {
+        border: 2px solid #228b22;
+    }
 }
 
 .footer {

@@ -7,6 +7,7 @@ var db = require('mongoose');
 var eventsModule = require('events');
 var events = new eventsModule.EventEmitter();
 var ImageParser = require('../../components/parsers/ImageParser.js');
+var ImageAdder = require('../../components/ImageAdder.js');
 var currUser = '';
 var currOauth;
 var currUserModel;
@@ -37,14 +38,10 @@ var getPosts = function (user, oauth, User){
     User.find({'_id': user.id}, function(err, response){
         lastUpdated = (typeof response.allPhotos !== 'undefined') ? response.allPhotos.lastUpdated : 0;
     });
-    var i = 0;
     var setter = {};
-    var parsed;
     var posts = [];
     var postsAll = [];
     var fileNames = [];
-
-
 
     async.each(blogs, function(blog, callback){
         request({
@@ -56,77 +53,26 @@ var getPosts = function (user, oauth, User){
             if (typeof res !== 'undefined'){
                 var imageParser = new ImageParser(res, lastUpdated);
 
-                //parseImages(res, lastUpdated, events);
-
                 imageParser.on('imagesParsed', function(parsed){
                     postsAll.push(parsed);
                     posts.push(parsed.photo);
-                    //console.log(parsed);
-                    //callback(null, parsed)
                 });
 
-                imageParser.on('imageParseComplete', function(fileNames){
-                    fileNames.push(fileNames);
-                    //console.log(fileNames);
-                    //console.log(posts);
+                imageParser.on('imageParseComplete', function(files){
+                    fileNames.push(files);
+
                     setter['following.$.photos'] = posts;
-                    posts = [];
+
                     User.update({'following.name': blog.name},
                         {'$set': setter},
                         function(err, result){
+                            console.log(posts);
+                            posts = [];
                         });
+
                 });
 
                 imageParser.parseImages();
-
-                //async.waterfall([
-                //    function(callback){
-                //        parseImages(res, lastUpdated);
-                //
-                //        events.on('imagesParsed', function(parsed){
-                //            console.log(parsed);
-                //            callback(null, parsed)
-                //        });
-                //
-                //    },
-                //    function(parsed, callback){
-                //        console.log(parsed);
-                //        postsAll.push(parsed.posts);
-                //        fileNames.push(parsed.filenames);
-                //        callback(null, parsed);
-                //    },
-                //    function(parsed, callback){
-                //        setter['following.$.photos'] = parsed.posts;
-                //        parsed = [];
-                //        User.update({'following.name': blog.name},
-                //            {'$set': setter},
-                //            function(err, result){
-                //                User.find({'_id': user.id}, function(err, response){
-                //
-                //                });
-                //            });
-                //        callback(null, 'done')
-                //    }
-                //], function (err, result){
-                //    console.log(postsAll);
-                //});
-
-                //parseImages(res, lastUpdated, function(err, parsed){
-                //    console.log('test');
-                //    postsAll.push(parsed.posts);
-                //    fileNames.push(parsed.filenames);
-                //
-                //
-                //    setter['following.$.photos'] = parsed.posts;
-                //    parsed = [];
-                //    User.update({'following.name': blog.name},
-                //        {'$set': setter},
-                //        function(err, result){
-                //            User.find({'_id': user.id}, function(err, response){
-                //
-                //            });
-                //        });
-                //});
             }
 
             callback();
@@ -137,27 +83,14 @@ var getPosts = function (user, oauth, User){
         if (err) {
             console.log('error');
         } else {
-            console.log(postsAll);
-            async.sortBy(postsAll, function(x, callback){
-                callback(err, x.timestamp*-1);
-            }, function(err, results){
+            var imageAdder = new ImageAdder(postsAll, User, user.id);
 
-                User.update({'_id': user.id}, {'$set': {'allPhotos.lastUpdated': results[0].timestamp}},
-                    function(err,result){});
-
-                User.update({'_id': user.id},
-                    {'$push': {'allPhotos.photos': {$each: results}}},
-                    function(err, result){
-                        User.find({'_id': user.id}, function(err, response){
-                            //console.log(response);
-                        });
-                    });
+            imageAdder.on('success', function(){
+                console.log('finished');
             });
-
-            console.log('finished');
+            imageAdder.addImages();
         }
     });
-
 };
 
 exports.getPosts = getPosts;

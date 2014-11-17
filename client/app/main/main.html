@@ -8,27 +8,31 @@
   <!--</div>-->
 <!--</header>-->
 
-<div class="container">
+<div class="container" scroll>
   <div class="row">
     <div class="col-sm-2">
       <ul>
-        <li ng-click="allBlogs()">All blogs</li>
+        <li ng-click="allBlogs()" class="blog-title">All blogs</li>
       </ul>
       <ul ng-repeat="blog in getCurrentUser().following">
-        <li ng-click="showBlog(blog)">{{blog.name}}</li>
+        <li ng-click="showBlog(blog)" class="blog-title">{{blog.name}}</li>
       </ul>
     </div>
 
-    <div class="col-sm-2" ng-if="all == false">
+    <div class="col-sm-2" ng-if="all == false" images>
       <div ng-repeat="photo in currentBlog.photos | limitTo:25">
-
+          <div class="photo" image="{{$index}}">
             <img src="{{photo.url}}">
+          </div>
+
       </div>
     </div>
 
-    <div class="col-sm-2" ng-if="all == true" in-view-container>
-      <div ng-repeat="post in getCurrentUser().allPhotos.photos">
+    <div class="col-sm-2" ng-if="all == true" in-view-container images>
+      <div ng-repeat="post in getCurrentUser().allPhotos.photos | limitTo:10">
+        <div class="photo" image="{{$index}}">
         <img src="{{post.photo.url}}">
+        </div>
         <!--<img src="{{post.photo.url}}" in-view="lineInView($index, $inview, $inviewpart, $event)">-->
       </div>
     </div>

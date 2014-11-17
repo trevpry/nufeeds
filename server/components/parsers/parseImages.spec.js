@@ -24,12 +24,29 @@ var testPost = {
           {alt_sizes: [
             {
               width: 500,
-              url: 'http://www.test.com/test/test.jpg'
+              url: 'http://www.test.com/test/test2.jpg'
             }
           ]}
         ],
         timestamp: 1
-      }]
+      },
+        {
+          photos: [
+            {alt_sizes: [
+              {
+                width: 500,
+                url: 'http://www.test.com/test/test.jpg'
+              }
+            ]},
+            {alt_sizes: [
+              {
+                width: 500,
+                url: 'http://www.test.com/test/test3.gif'
+              }
+            ]}
+          ],
+          timestamp: 2
+        }]
     }
   }
 };
@@ -74,7 +91,7 @@ describe('parseImages component', function() {
     done();
   });
 
-  it('should pass arguments in imageParseCoplete event', function(done){
+  it('should pass arguments in imageParseComplete event', function(done){
     arg2.should.be.an.Array;
     arg2.length.should.equal(2);
     done();
