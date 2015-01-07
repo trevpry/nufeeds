@@ -11,15 +11,20 @@
 <div class="container" scroll>
   <div class="row">
     <div class="col-sm-2">
-      <ul>
-        <li ng-click="allBlogs()" class="blog-title">All blogs</li>
-      </ul>
-      <ul ng-repeat="blog in getCurrentUser().following">
-        <li ng-click="showBlog(blog)" class="blog-title">{{blog.name}}</li>
-      </ul>
+      <div class="fixed">
+        <ul>
+          <li ng-click="allBlogs()" class="blog-title" ng-class="itemClass('all')">All blogs</li>
+        </ul>
+        <ul ng-repeat="blog in getCurrentUser().following">
+          <li ng-click="showBlog(blog)"
+              ng-class="itemClass(blog.name)"
+              class="blog-title">{{blog.name}}</li>
+        </ul>
+      </div>
+
     </div>
 
-    <div class="col-sm-2" ng-if="all == false" images>
+    <div class="col-sm-8" ng-if="all == false" images>
       <div ng-repeat="photo in currentBlog.photos | limitTo:25">
           <div class="photo" image="{{$index}}">
             <img src="{{photo.url}}">
@@ -28,16 +33,22 @@
       </div>
     </div>
 
-    <div class="col-sm-2" ng-if="all == true" in-view-container images>
-      <div ng-repeat="post in getCurrentUser().allPhotos.photos | limitTo:10">
+    <div class="col-sm-8" ng-if="all == true" in-view-container images>
+      <div ng-repeat="post in getCurrentUser().allPhotos.photos | limitTo:25">
         <div class="photo" image="{{$index}}">
         <img src="{{post.photo.url}}">
         </div>
         <!--<img src="{{post.photo.url}}" in-view="lineInView($index, $inview, $inviewpart, $event)">-->
       </div>
     </div>
-  </div>
 
+    <div class="col-sm-2">
+
+      <ul class="tags fixed">
+        <li><input type="checkbox">Tag 1</li>
+      </ul>
+    </div>
+  </div>
 </div>
 
 <footer class="footer">

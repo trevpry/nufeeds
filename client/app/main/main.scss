@@ -1,5 +1,21 @@
+//colors
+$light-gray: #E5E5E5;
+$black: #000;
+
+body {
+    padding-top: 70px;
+}
+
 li {
     list-style: none;
+}
+
+.fixed {
+    position: fixed;
+}
+
+.current {
+    font-weight: bold;
 }
 
 #banner {
@@ -13,29 +29,23 @@ li {
     letter-spacing: -1px;
 }
 
-.hero-unit {
-    position: relative;
-    padding: 30px 15px;
-    color: #F5F5F5;
-    text-align: center;
-    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
-    background: #4393B9;
-}
-
-.in-view img{
-    border: 1px solid black;
-}
-
 .blog-title {
     cursor: pointer;
     &:hover {
-        background: lightgrey;
+        background: $light-gray;
     }
 }
 
 .container {
-    &:focus {
-        border: 2px solid #228b22;
+    .photo {
+        width: 100%;
+        text-align: center;
+        margin: 10px auto;
+    }
+
+    .in-view img{
+        border-radius: 5px;
+        border: 2px solid $black;
     }
 }
 
@@ -43,5 +53,5 @@ li {
     text-align: center;
     padding: 30px 0;
     margin-top: 70px;
-    border-top: 1px solid #E5E5E5;
+    border-top: 1px solid $light-gray;
 }

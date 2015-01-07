@@ -26,7 +26,6 @@ angular.module('nufeedsApp')
 
         return function(scope, element, attrs) {
             angular.element($window).bind('scroll', function(){
-                //console.log('scrolled');
 
                 inView = $('.photo:in-viewport( 200 )');
                 imageNo = +inView.attr('image');
@@ -42,10 +41,6 @@ angular.module('nufeedsApp')
                     if (detectDirection() == 'up'){
                         lastImage = imageNo+1;
                     }
-
-
-
-                    //imageNo++;
                 }
 
                 scope.$apply();
